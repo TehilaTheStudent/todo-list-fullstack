@@ -1,7 +1,0 @@
-info:
-  contact: {}
-  description: This is a simple todo list API.
-  title: Todo List API
-  version: "1.0"
-paths: {}
-swagger: "2.0"
