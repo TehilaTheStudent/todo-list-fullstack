@@ -136,6 +136,7 @@ h1 {
 .task-label {
   display: flex;
   align-items: center;
+  color: black;
 }
 
 .task-checkbox {

@@ -9,7 +9,7 @@ export interface Task {
 
 // Axios instance
 const apiClient = axios.create({
-  baseURL: "http://localhost:8080", // Replace with your backend URL
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
