@@ -8,6 +8,12 @@ import (
 // SetupRoutes sets up the API routes
 func SetupRoutes(r *gin.Engine) {
 
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "healthy",
+		})
+	})
+
 	r.GET("/tasks", handlers.GetTasks)
 
 	r.POST("/tasks", handlers.CreateTask)
