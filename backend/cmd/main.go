@@ -16,16 +16,18 @@ func main() {
 	config.LoadEnv()
 
 	// Connect to the database
-	database.Connect()
+	db, err := database.Connect()
+	if err != nil {
+		panic("Failed to connect to database: " + err.Error())
+	}
 
 	// Initialize Gin router
 	r := gin.Default()
 
 	// Enable CORS
 	r.Use(cors.Default())
-
 	// Setup application routes
-	routes.SetupRoutes(r)
+	routes.SetupRoutes(r, db)
 
 	// Run the server on port 8080
 	if err := r.Run(":8080"); err != nil {

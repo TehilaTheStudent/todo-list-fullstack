@@ -3,30 +3,38 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/TehilaTheStudent/todo-list-fullstack/backend/internal/database"
 	"github.com/TehilaTheStudent/todo-list-fullstack/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func GetTasks(c *gin.Context) {
+type TaskHandler struct {
+	DB *gorm.DB
+}
+
+func NewTaskHandler(db *gorm.DB) *TaskHandler {
+	return &TaskHandler{DB: db}
+}
+
+func (h *TaskHandler) GetTasks(c *gin.Context) {
 	var tasks []models.Task
-	database.DB.Find(&tasks)
+	h.DB.Find(&tasks)
 	c.JSON(http.StatusOK, tasks)
 }
 
-func CreateTask(c *gin.Context) {
+func (h *TaskHandler) CreateTask(c *gin.Context) {
 	var task models.Task
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	database.DB.Create(&task)
+	h.DB.Create(&task)
 	c.JSON(http.StatusCreated, task)
 }
 
-func UpdateTask(c *gin.Context) {
+func (h *TaskHandler) UpdateTask(c *gin.Context) {
 	var task models.Task
-	if err := database.DB.First(&task, c.Param("id")).Error; err != nil {
+	if err := h.DB.First(&task, c.Param("id")).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 		return
 	}
@@ -34,16 +42,16 @@ func UpdateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	database.DB.Save(&task)
+	h.DB.Save(&task)
 	c.JSON(http.StatusOK, task)
 }
 
-func DeleteTask(c *gin.Context) {
+func (h *TaskHandler) DeleteTask(c *gin.Context) {
 	var task models.Task
-	if err := database.DB.First(&task, c.Param("id")).Error; err != nil {
+	if err := h.DB.First(&task, c.Param("id")).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 		return
 	}
-	database.DB.Delete(&task)
+	h.DB.Delete(&task)
 	c.JSON(http.StatusOK, gin.H{"message": "Task deleted"})
 }

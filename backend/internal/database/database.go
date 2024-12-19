@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/TehilaTheStudent/todo-list-fullstack/backend/config"
@@ -12,9 +11,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var DB *gorm.DB
-
-func Connect() {
+func Connect() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.GetEnv("DB_USER"),
 		config.GetEnv("DB_PASS"),
@@ -22,17 +19,16 @@ func Connect() {
 		config.GetEnv("DB_PORT"),
 		config.GetEnv("DB_NAME"),
 	)
-	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info), // Verbose logging for development
 	})
 	if err != nil {
-		log.Fatal("Failed to connect to database: ", err)
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 	// Configure connection pooling
-	sqlDB, err := DB.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatal("Failed to get generic DB object: ", err)
+		return nil, fmt.Errorf("failed to get generic DB object: %w", err)
 	}
 
 	// Match the database's maximum connection limit
@@ -41,5 +37,8 @@ func Connect() {
 	sqlDB.SetConnMaxLifetime(15 * time.Minute) // Recycle connections every 15 minutes
 
 	// Auto-migrate models
-	DB.AutoMigrate(&models.Task{})
+	db.AutoMigrate(&models.Task{})
+	db.AutoMigrate(&models.User{})
+
+	return db, nil
 }

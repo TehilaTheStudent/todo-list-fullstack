@@ -15,6 +15,18 @@ const apiClient = axios.create({
   },
 });
 
+// Add a response interceptor to handle and log errors
+apiClient.interceptors.response.use(
+  (response) => response, // Pass through successful responses
+  (error) => {
+    console.error(
+      "API Error:",
+      error.response ? error.response.data : error.message
+    );
+    return Promise.reject(error); // Ensure error is still propagated
+  }
+);
+
 export default {
   async getTasks(): Promise<Task[]> {
     const response = await apiClient.get<Task[]>("/tasks");

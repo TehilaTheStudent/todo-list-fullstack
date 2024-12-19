@@ -6,6 +6,8 @@
       <button type="submit" class="add-button">Add Task</button>
     </form>
 
+    <div v-if="error" class="error-message">{{ error }}</div>
+
     <ul class="task-list">
       <li v-for="task in tasks" :key="task.ID" class="task-item">
         <label class="task-label">
@@ -32,35 +34,56 @@ export default defineComponent({
     // State variables
     const tasks = ref<Task[]>([]);
     const newTask = ref<{ name: string }>({ name: "" });
+    const error = ref<string | null>(null);
 
     // Fetch all tasks
     const fetchTasks = async () => {
-      tasks.value = await api.getTasks();
+      try {
+        tasks.value = await api.getTasks();
+        error.value = null;
+      } catch (err) {
+        error.value = "Failed to fetch tasks.";
+      }
     };
 
     // Create a new task
     const createTask = async () => {
       if (newTask.value.name.trim()) {
-        await api.addTask({
-          Name: newTask.value.name,
-          IsCompleted: false,
-        });
-        newTask.value = { name: "" }; // Clear input
-        await fetchTasks(); // Refresh task list
+        try {
+          await api.addTask({
+            Name: newTask.value.name,
+            IsCompleted: false,
+          });
+          newTask.value = { name: "" }; // Clear input
+          await fetchTasks(); // Refresh task list
+          error.value = null;
+        } catch (err) {
+          error.value = "Failed to create task.";
+        }
       }
     };
 
     // Toggle task completion
     const toggleCompleted = async (task: Task) => {
-      const updatedTask = { ...task, isCompleted: !task.IsCompleted };
-      await api.updateTask(task.ID, updatedTask);
-      await fetchTasks();
+      try {
+        const updatedTask = { ...task, isCompleted: !task.IsCompleted };
+        await api.updateTask(task.ID, updatedTask);
+        await fetchTasks();
+        error.value = null;
+      } catch (err) {
+        error.value = "Failed to update task.";
+      }
     };
 
     // Delete a task
     const deleteTask = async (id: number) => {
-      await api.deleteTask(id);
-      await fetchTasks();
+      try {
+        await api.deleteTask(id);
+        await fetchTasks();
+        error.value = null;
+      } catch (err) {
+        error.value = "Failed to delete task.";
+      }
     };
 
     // Lifecycle hook
@@ -72,6 +95,7 @@ export default defineComponent({
       createTask,
       toggleCompleted,
       deleteTask,
+      error,
     };
   },
 });
@@ -118,6 +142,12 @@ h1 {
 
 .add-button:hover {
   background-color: #218838;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .task-list {
