@@ -1,9 +1,7 @@
 # todo-list-fullstack [practicode-3](https://learn.malkabruk.co.il/practicode/projects/pract-3/)
 
 [frontend](https://todo-list-fullstack-frontend.onrender.com)
-
 [backend](https://todo-list-fullstack-backend.onrender.com)
-
 [database](https://console.clever-cloud.com/users/me/addons/addon_9361bbf6-4a08-4be2-8733-9e42cccbf62c)
 
 ### Project Overview

@@ -12,6 +12,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	taskHandler := handlers.NewTaskHandler(db)
 	authHandler := handlers.NewAuthHandler(db)
 	userHandler := handlers.NewUserHandler(db) // Add user handler
+	renderHandler := handlers.NewRenderHandler() // Add render handler
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -23,6 +24,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
 	r.GET("/users", userHandler.GetAllUsers) // Add route for getting all users
+	r.GET("/render", renderHandler.GetServices) // Add route for render handler
 
 	// Protected routes
 	protected := r.Group("/")
