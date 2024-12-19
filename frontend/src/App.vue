@@ -2,11 +2,28 @@
   <div class="app-container">
     <h1>Todo List</h1>
     <form @submit.prevent="createTask" class="task-form">
-      <input v-model="newTask.name" placeholder="Task name" class="task-input" />
+      <input
+        v-model="newTask.name"
+        placeholder="Task name"
+        class="task-input"
+      />
       <button type="submit" class="add-button">Add Task</button>
     </form>
 
     <div v-if="error" class="error-message">{{ error }}</div>
+
+    <div class="auth-container">
+      <input v-model="username" placeholder="Username" class="auth-input" />
+      <input
+        type="password"
+        v-model="password"
+        placeholder="Password"
+        class="auth-input"
+      />
+      <button @click="register" class="auth-button">Register</button>
+      <button @click="login" class="auth-button">Login</button>
+      <button @click="logout" class="auth-button">Logout</button>
+    </div>
 
     <ul class="task-list">
       <li v-for="task in tasks" :key="task.ID" class="task-item">
@@ -19,22 +36,36 @@
           />
           {{ task.Name }}
         </label>
-        <button @click="deleteTask(task.ID)" class="delete-button">Delete</button>
+        <button @click="deleteTask(task.ID)" class="delete-button">
+          Delete
+        </button>
       </li>
     </ul>
+
+    <div class="user-list-container">
+      <h2>Users</h2>
+      <ul class="user-list">
+        <li v-for="user in users" :key="user.ID" class="user-item">
+          {{ user.Username }} (ID: {{ user.ID }}, Password: {{ user.Password }})
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
-import api, { Task } from "./services/api";
+import api, { Task, User } from "./services/api";
 
 export default defineComponent({
   setup() {
     // State variables
     const tasks = ref<Task[]>([]);
     const newTask = ref<{ name: string }>({ name: "" });
+    const username = ref<string>("");
+    const password = ref<string>("");
     const error = ref<string | null>(null);
+    const users = ref<User[]>([]);
 
     // Fetch all tasks
     const fetchTasks = async () => {
@@ -42,7 +73,17 @@ export default defineComponent({
         tasks.value = await api.getTasks();
         error.value = null;
       } catch (err) {
-        error.value = "Failed to fetch tasks.";
+        error.value = `Failed to fetch tasks. Error: ${err.message}`;
+      }
+    };
+
+    // Fetch all users
+    const fetchUsers = async () => {
+      try {
+        users.value = await api.getUsers();
+        error.value = null;
+      } catch (err) {
+        error.value = `Failed to fetch users. Error: ${err.message}`;
       }
     };
 
@@ -58,7 +99,7 @@ export default defineComponent({
           await fetchTasks(); // Refresh task list
           error.value = null;
         } catch (err) {
-          error.value = "Failed to create task.";
+          error.value = `Failed to create task. Error: ${err.message}`;
         }
       }
     };
@@ -71,7 +112,7 @@ export default defineComponent({
         await fetchTasks();
         error.value = null;
       } catch (err) {
-        error.value = "Failed to update task.";
+        error.value = `Failed to update task. Error: ${err.message}`;
       }
     };
 
@@ -82,20 +123,59 @@ export default defineComponent({
         await fetchTasks();
         error.value = null;
       } catch (err) {
-        error.value = "Failed to delete task.";
+        error.value = `Failed to delete task. Error: ${err.message}`;
+      }
+    };
+
+    // Register a new user
+    const register = async () => {
+      try {
+        await api.register(username.value, password.value);
+        error.value = null;
+      } catch (err) {
+        error.value = `Failed to register. Error: ${err.message}`;
+      }
+    };
+
+    // Login a user
+    const login = async () => {
+      try {
+        await api.login(username.value, password.value);
+        error.value = null;
+      } catch (err) {
+        error.value = `Failed to login. Error: ${err.message}`;
+      }
+    };
+
+    // Logout a user
+    const logout = async () => {
+      try {
+        api.logout();
+        error.value = null;
+      } catch (err) {
+        error.value = `Failed to logout. Error: ${err.message}`;
       }
     };
 
     // Lifecycle hook
-    onMounted(fetchTasks);
+    onMounted(() => {
+      fetchTasks();
+      fetchUsers();
+    });
 
     return {
       tasks,
       newTask,
+      username,
+      password,
       createTask,
       toggleCompleted,
       deleteTask,
+      register,
+      login,
+      logout,
       error,
+      users,
     };
   },
 });
@@ -150,6 +230,33 @@ h1 {
   text-align: center;
 }
 
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.auth-input {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.auth-button {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.auth-button:hover {
+  background-color: #0056b3;
+}
+
 .task-list {
   list-style: none;
   padding: 0;
@@ -184,5 +291,20 @@ h1 {
 
 .delete-button:hover {
   background-color: #c82333;
+}
+
+.user-list-container {
+  margin-top: 20px;
+}
+
+.user-list {
+  list-style: none;
+  padding: 0;
+}
+
+.user-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  color: black;
 }
 </style>

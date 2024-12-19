@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/TehilaTheStudent/todo-list-fullstack/backend/config"
 	"github.com/TehilaTheStudent/todo-list-fullstack/backend/internal/database"
+	"github.com/TehilaTheStudent/todo-list-fullstack/backend/internal/middlewares"
 	"github.com/TehilaTheStudent/todo-list-fullstack/backend/internal/routes"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,8 +24,8 @@ func main() {
 	// Initialize Gin router
 	r := gin.Default()
 
-	// Enable CORS
-	r.Use(cors.Default())
+	r.Use(middlewares.CORSMiddleware())
+
 	// Setup application routes
 	routes.SetupRoutes(r, db)
 

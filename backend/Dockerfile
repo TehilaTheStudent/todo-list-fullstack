@@ -18,4 +18,5 @@ ENV DB_PASS=VF3McDK3WNeuMSkFmfzu
 ENV DB_NAME=bwo8xnxrjgkyqk1fvfxg
 ENV DB_HOST=bwo8xnxrjgkyqk1fvfxg-mysql.services.clever-cloud.com
 ENV DB_PORT=3306
+ENV FRONTEND_URL=https://todo-list-fullstack-frontend.onrender.com
 ENV ENV=production

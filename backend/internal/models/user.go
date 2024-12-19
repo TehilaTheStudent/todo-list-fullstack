@@ -28,7 +28,7 @@ func (u *User) CheckPassword(password string) error {
 
 // BeforeSave hooks into gorm's save operations to hash the password
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
-	if u.Password != "" {
+		if u.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return err
@@ -37,4 +37,3 @@ func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 	}
 	return
 }
-
