@@ -71,11 +71,18 @@ export default {
     await apiClient.delete(`/tasks/${id}`);
   },
   async login(username: string, password: string) {
-    const res = await apiClient.post("/login", { username, password });
-    saveAccessToken(res.data);
+    try {
+      const res = await apiClient.post("/login", { username, password });
+      saveAccessToken(res.data);
+      return res.data;
+    } catch (error) {
+      console.error("Login error:", error.response ? error.response.data : error.message);
+      throw error;
+    }
   },
   async register(username: string, password: string) {
     const res = await apiClient.post("/register", { username, password });
+    return res.data;
   },
   async getUsers(): Promise<User[]> {
     setAuthorizationBearer();
